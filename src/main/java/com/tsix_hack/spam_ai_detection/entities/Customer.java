@@ -25,5 +25,5 @@ public class Customer implements Serializable {
     private Date birthDate ;
     private String emaail ;
     private String password ;
-    private BigInteger phoneNumber ;
+    private String phoneNumber ;
 }
