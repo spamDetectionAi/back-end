@@ -1,4 +1,4 @@
-package com.tsix_hack.spam_ai_detection.service;
+package com.tsix_hack.spam_ai_detection.utils;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class WhatsApp {
+public class WhatsAppService {
     public void sendMsg(String to , String message) throws IOException {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
