@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "people_info")
-public class PoepleInfo implements Serializable {
+public class PeopleInfo implements Serializable {
     @Id
     @GeneratedValue(generator = "UUID")
     private UUID id ;

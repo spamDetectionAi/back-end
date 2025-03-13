@@ -8,6 +8,7 @@ import okhttp3.Response;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class WhatsAppService {
@@ -26,4 +27,6 @@ public class WhatsAppService {
         Response response = client.newCall(request).execute();
         System.out.println(response.body().string());
     }
+
+
 }

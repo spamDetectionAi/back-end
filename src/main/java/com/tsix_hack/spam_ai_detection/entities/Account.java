@@ -20,7 +20,7 @@ public class Account {
 
     @ManyToOne
     @JoinColumn(name = "peopleInfo_id")
-    private PoepleInfo poepleInfo ;
+    private PeopleInfo peopleInfo;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
