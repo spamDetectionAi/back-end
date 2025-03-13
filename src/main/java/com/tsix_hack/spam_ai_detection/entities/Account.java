@@ -44,5 +44,7 @@ public class Account {
             joinColumns = @JoinColumn(name = "account_receiver") ,
             inverseJoinColumns = @JoinColumn(name = "message_received")
     )
+
+
     private HashSet<Message> messageReceived ;
 }
