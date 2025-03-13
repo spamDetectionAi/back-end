@@ -18,4 +18,8 @@ public class Permission {
     @NotNull
     @Enumerated(EnumType.STRING)
     private PermissionType permissionType ;
+
+    public Permission(int id) {
+        this.id = id;
+    }
 }

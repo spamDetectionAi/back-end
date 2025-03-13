@@ -65,18 +65,28 @@ public class AccountService {
         return accountRepository.findAccountByEmail(email).isPresent();
     }
 
+    private ResponseEntity<String> savingAction (Account account){
+        phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber());
+        account.setAccountPermission(2);
+        accountRepository.save(account);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("account has been saved");
+    }
+
     @Transactional
     public ResponseEntity<String> save (Account account , UUID uuid) {
-        if (emailCheck(account.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(account.getEmail() + " is already in use") ;
+        if (emailCheck(account.getEmail()))
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(account.getEmail() + " is already in use") ;
 
-        } else if (!identification(account.getPhoneNumber(), uuid)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("your verification code "+uuid.toString()+" is invalid") ;
-        }
-        phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber());
-        accountRepository.save(account);
-        return ResponseEntity.status(HttpStatus.CREATED).body("account has been saved");
+        else if (!identification(account.getPhoneNumber(), uuid))
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("your verification code "+uuid.toString()+" is invalid") ;
 
+        return savingAction(account);
     }
 
 

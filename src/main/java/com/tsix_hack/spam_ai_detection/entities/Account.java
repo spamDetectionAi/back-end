@@ -47,4 +47,8 @@ public class Account {
 
 
     private HashSet<Message> messageReceived ;
+
+    public void setAccountPermission(int id) {
+        this.permission = new Permission(id);
+    }
 }
