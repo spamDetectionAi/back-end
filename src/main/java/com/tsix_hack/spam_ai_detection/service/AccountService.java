@@ -10,6 +10,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Optional;
@@ -19,10 +23,12 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class AccountService {
-    AccountRepository accountRepository;
-    WhatsAppService whatsAppService;
-    RandomGenerator randomGenerator;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private AccountRepository accountRepository;
+    private WhatsAppService whatsAppService;
+    private RandomGenerator randomGenerator;
     private PhoneVerificationRepository phoneVerificationRepository ;
+    private TokenService tokenService;
 
     public String initiateVerification (String phoneNumber) throws IOException {
         Optional<Account> account = accountRepository.findByPhoneNumber(phoneNumber);
@@ -66,12 +72,15 @@ public class AccountService {
     }
 
     private ResponseEntity<String> savingAction (Account account){
-        phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber());
+        //phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber())
         account.setAccountPermission(2);
-        accountRepository.save(account);
+        account.setAccountPassword(passwordEncoder.encode(account.getPassword())) ;
+        Account account1 = accountRepository.save(account);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(account1.getEmail(), account1.getPassword());
+        String token = tokenService.generateToken(authentication);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("account has been saved");
+                .body(token);
     }
 
     @Transactional
@@ -81,13 +90,18 @@ public class AccountService {
                     .status(HttpStatus.CONFLICT)
                     .body(account.getEmail() + " is already in use") ;
 
-        else if (!identification(account.getPhoneNumber(), uuid))
+        /*else if (!identification(account.getPhoneNumber(), uuid))
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("your verification code "+uuid.toString()+" is invalid") ;
+                    .body("your verification code "+uuid.toString()+" is invalid") ;*/
 
         return savingAction(account);
     }
 
+    public static void main(String[] args) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        System.out.println(passwordEncoder.encode("securePassword123"));
+        System.out.println(passwordEncoder.matches("securePassword123", "$2a$10$mV9fwPYggAs54xyp9s.SlOcBNdZa1L5IVz5IBb7loNDZqcBuCr9c2"));
+    }
 
 }
