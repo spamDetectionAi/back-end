@@ -5,9 +5,11 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 @Entity
 @AllArgsConstructor
@@ -38,17 +40,21 @@ public class Account {
     @Size(min = 6)
     private String password ;
 
+    @Setter
     @ManyToMany
     @JoinTable(
             name = "message_reception" ,
             joinColumns = @JoinColumn(name = "account_receiver") ,
             inverseJoinColumns = @JoinColumn(name = "message_received")
     )
-
-
-    private HashSet<Message> messageReceived ;
+    private Set<Message> messageReceived ;
 
     public void setAccountPermission(int id) {
         this.permission = new Permission(id);
     }
+
+    public void setAccountPassword(String password) {
+        this.password = password;
+    }
+
 }
