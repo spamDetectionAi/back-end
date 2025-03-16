@@ -92,8 +92,9 @@ public class SecurityConfig {
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth").authenticated()
-                        .anyRequest().permitAll())
+                        .requestMatchers("/api/account/signIn").permitAll()
+                        .requestMatchers("/auth").hasAnyAuthority( "ROLE_USER")
+                        .anyRequest().authenticated())
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenService {
@@ -28,7 +29,9 @@ public class TokenService {
     public String generateToken(Authentication authentication) {
         Optional<Account> account = accountRepository.findAccountByEmail(authentication.getName()) ;
         Instant now = Instant.now();
-        String scope = authentication.getAuthorities().toString() ;
+         String scope = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" ")); ;
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
