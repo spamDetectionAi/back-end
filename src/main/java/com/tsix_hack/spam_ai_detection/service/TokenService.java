@@ -8,6 +8,7 @@ import com.tsix_hack.spam_ai_detection.security.Jwks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,9 @@ public class TokenService {
                 .claim("scope" , scope)
                 .build();
 
-        return this.jwtEncoder.encode(JwtEncoderParameters.from( claimsSet)).getTokenValue() ;
+
+        JwsHeader jwsHeader = JwsHeader.with(() -> "RS256").build();
+
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader , claimsSet)).getTokenValue();
     }
 }

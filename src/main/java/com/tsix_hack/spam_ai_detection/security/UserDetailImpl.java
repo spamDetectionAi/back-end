@@ -28,7 +28,7 @@ public class UserDetailImpl implements UserDetailsService {
         return User.builder()
                 .username(account.get().getEmail())
                 .password(account.get().getPassword())
-                .authorities(new SimpleGrantedAuthority(account.get().getPermission().toString()))
+                .authorities(new SimpleGrantedAuthority("ROLE_" + account.get().getPermission().getPermissionType()))
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.tsix_hack.spam_ai_detection.security;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,15 +39,14 @@ import java.util.List;
 
 public class SecurityConfig {
 
-    private RSAKey rsaKey;
     @Autowired
     UserDetailImpl userService;
 
+    RSAKey rsaKey;
+
     public SecurityConfig() {
-        this.rsaKey = Jwks.generateRsa() ;
+        this.rsaKey = Jwks.generateRsa();
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) throws Exception {
@@ -64,7 +64,6 @@ public class SecurityConfig {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        rsaKey = Jwks.generateRsa() ;
         JWKSet jwkSet = new JWKSet(rsaKey);
         return ((jwkSelector, securityContext)
                 -> jwkSelector.select(jwkSet)) ;
@@ -72,11 +71,13 @@ public class SecurityConfig {
 
     @Bean
     JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwks) {
-        return new NimbusJwtEncoder(jwks);
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(rsaKey));
+        return new NimbusJwtEncoder(jwkSource);
     }
 
     @Bean
     JwtDecoder jwtDecoder() throws JOSEException {
+        System.out.println("Clé publique utilisée : " + rsaKey.toRSAPublicKey());
         return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
     }
 
@@ -95,8 +96,7 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2ResourceServer
-                        -> oauth2ResourceServer.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .build();
     }
 
