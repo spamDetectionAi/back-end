@@ -12,7 +12,7 @@ public class LoginTest {
 
     private JwtDecoder jwtDecoder;
 
-    @GetMapping("/auth")
+    @GetMapping("api/user")
     public String ping (@RequestHeader("Authorization") String token){
         try {
             if (token.startsWith("Bearer ")) {
