@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,6 +32,14 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "attachement_id")
     private Attachement attachement ;
+
+    @ManyToMany
+    @JoinTable(
+            name = "message_reception",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "receiver_id")
+    )
+    private Set<Account> receivers;
 
     @PrePersist
     protected void create() {

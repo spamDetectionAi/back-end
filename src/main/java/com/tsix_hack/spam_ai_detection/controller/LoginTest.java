@@ -20,7 +20,7 @@ public class LoginTest {
             }
             return jwtDecoder.decode(token).getSubject();
         } catch (JwtException e) {
-            return "Errorr : " + e.getMessage();
+            return "Error : " + e.getMessage();
         }
     }
 

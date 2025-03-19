@@ -1,6 +1,7 @@
 package com.tsix_hack.spam_ai_detection.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,20 +35,12 @@ public class Account {
 
     @NotNull
     @Column(unique = true)
+    @Email
     private String email ;
 
     @NotNull
     @Size(min = 6)
     private String password ;
-
-    @Setter
-    @ManyToMany
-    @JoinTable(
-            name = "message_reception" ,
-            joinColumns = @JoinColumn(name = "account_receiver") ,
-            inverseJoinColumns = @JoinColumn(name = "message_received")
-    )
-    private Set<Message> messageReceived ;
 
     public void setAccountPermission(int id) {
         this.permission = new Permission(id);
