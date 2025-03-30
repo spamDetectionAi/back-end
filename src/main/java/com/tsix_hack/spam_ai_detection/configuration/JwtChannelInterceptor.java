@@ -1,37 +1,49 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
+import com.tsix_hack.spam_ai_detection.service.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-
-import java.security.Principal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.server.HandshakeInterceptor;
+import java.util.Map;
 
 @AllArgsConstructor
-public class JwtChannelInterceptor implements ChannelInterceptor {
+@Component
+public class JwtChannelInterceptor implements HandshakeInterceptor {
 
-    private JwtDecoder jwtDecoder;
+    private TokenService jwtDecoder;
 
     @Override
-    public Message<?> preSend(Message<?> message , MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
-        if(StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String token = accessor.getFirstNativeHeader("Authorization");
-            if(token != null && token.startsWith("Bearer ")) {
-                String userId = jwtDecoder.decode(token.substring(7) ).toString();
-                accessor.setUser(new Principal() {
-                    @Override
-                    public String getName() {
-                        return userId;
-                    }
-                });
+    public boolean beforeHandshake(ServerHttpRequest request,
+                                   ServerHttpResponse response,
+                                   WebSocketHandler wsHandler,
+                                   Map<String, Object> attributes) throws Exception {
+        if (request instanceof ServletServerHttpRequest){
+           HttpServletRequest servletRequest = ((ServletServerHttpRequest) request)
+                    .getServletRequest();
+            String token = servletRequest.getParameter("token");
+            String userId = jwtDecoder.decodeInParam(token);
+            if (userId != null) {
+                attributes.put("userId", userId);
+                response.setStatusCode(HttpStatus.OK);
+                return true;
             }
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return false;
         }
-        return message;
+        return false;
     }
 
+    @Override
+    public void afterHandshake(ServerHttpRequest request,
+                               ServerHttpResponse response,
+                               WebSocketHandler wsHandler,
+                               Exception exception) {
+
+    }
 }

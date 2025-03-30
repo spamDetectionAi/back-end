@@ -23,5 +23,4 @@ public class LoginTest {
             return "Error : " + e.getMessage();
         }
     }
-
 }
