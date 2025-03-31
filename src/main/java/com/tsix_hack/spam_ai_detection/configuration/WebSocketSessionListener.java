@@ -16,12 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class WebSocketSessionListener {
     private final SimpMessagingTemplate messagingTemplate;
-    private static final Map<String , String>  sessions = new ConcurrentHashMap<>();
+    private static final Map<String, String> sessions = new ConcurrentHashMap<>();
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        Map<String, Object> sessionAttributes = (Map<String, Object>) event.getMessage().getHeaders().get("simpSessionAttributes");
-
+        Map<String, Object> sessionAttributes = (Map<String, Object>) event.getMessage().getHeaders().get("simpSessionAttributes") ;
         if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
             String userId = (String) sessionAttributes.get("userId");
             String sessionId = event.getMessage().getHeaders().get("simpSessionId").toString();
@@ -37,8 +36,6 @@ public class WebSocketSessionListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
         String userIdToRemove = null;
-
-        // Rechercher le userId correspondant à la sessionId
         for (Map.Entry<String, String> entry : sessions.entrySet()) {
             if (entry.getValue().equals(sessionId)) {
                 userIdToRemove = entry.getKey();
@@ -54,22 +51,16 @@ public class WebSocketSessionListener {
         }
     }
 
-    public  MessageRequest sendMessageToUser(MessageRequest messageRequest) {
-        String userId = messageRequest.getRecipients().toString() ;
+    public MessageRequest sendMessageToUser(MessageRequest messageRequest) {
+        String userId = messageRequest.getRecipients().toString();
         String sessionId = sessions.get(userId);
         if (sessionId != null) {
             try {
-                System.out.println("🛠️ Tentative d'envoi au userId : " + userId + " (sessionId : " + sessions.get(userId) + ")");
                 messagingTemplate.convertAndSendToUser(userId, "/queue/messages", messageRequest);
-                System.out.println("📩 Message sent to " + userId + " : " + messageRequest.getRecipients() + " -> " + sessionId);
                 return messageRequest;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            //messagingTemplate.convertAndSend("/user/" + userId + "/queue/messages", messageRequest);
-
-        } else {
-            System.out.println("⚠️ user " + userId+" is not connected");
         }
         return null;
     }

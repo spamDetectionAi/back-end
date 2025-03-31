@@ -6,10 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RestController;
-
-
 
 @RestController
 @AllArgsConstructor
@@ -19,7 +16,6 @@ public class MessageController {
     @MessageMapping("/chat/private")
     public MessageRequest sendPrivateMessage(@NotNull @Payload MessageRequest message) {
       return webSocketSessionListener.sendMessageToUser(message);
-
     }
 
     @MessageMapping("/test")
