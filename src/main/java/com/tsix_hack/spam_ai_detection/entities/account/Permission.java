@@ -1,4 +1,4 @@
-package com.tsix_hack.spam_ai_detection.entities;
+package com.tsix_hack.spam_ai_detection.entities.account;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

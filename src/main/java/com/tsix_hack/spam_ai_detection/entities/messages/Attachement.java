@@ -1,4 +1,4 @@
-package com.tsix_hack.spam_ai_detection.entities;
+package com.tsix_hack.spam_ai_detection.entities.messages;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,18 +7,22 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import java.net.URL;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class PhoneNumberVerification {
+public class Attachement {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id ;
-    private String phoneNumber;
-    private String verificationCode ;
-    private UUID uuid;
+    private Long id ;
+
+    @NotNull
+    private URL url ;
+
+    @NotNull
+    private String type ;
 }

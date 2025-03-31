@@ -1,7 +1,9 @@
 package com.tsix_hack.spam_ai_detection.service;
 
-import com.tsix_hack.spam_ai_detection.entities.Account;
-import com.tsix_hack.spam_ai_detection.entities.PhoneNumberVerification;
+import com.tsix_hack.spam_ai_detection.entities.account.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.AccountDTO;
+import com.tsix_hack.spam_ai_detection.entities.account.AccountMapper;
+import com.tsix_hack.spam_ai_detection.entities.account.PhoneNumberVerification;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.PhoneVerificationRepository;
 import com.tsix_hack.spam_ai_detection.utils.RandomGenerator;
@@ -100,18 +102,17 @@ public class AccountService {
         return savingAction(account);
     }
 
-    public static void main(String[] args) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        System.out.println(passwordEncoder.encode("securePassword123"));
-        System.out.println(passwordEncoder.matches("securePassword123", "$2a$10$mV9fwPYggAs54xyp9s.SlOcBNdZa1L5IVz5IBb7loNDZqcBuCr9c2"));
-    }
-
     public Set<Account> findAllById(Set<UUID> ids) {
         Set<Account> accounts = new HashSet<>();
         for (UUID id : ids){
             accounts.add(accountRepository.findAccountById(id));
         }
         return accounts;
+    }
+
+    public AccountDTO findById(UUID id) {
+        Account account = accountRepository.findAccountById(id);
+        return AccountMapper.INSTANCE.toDTO(account);
     }
 
 }
