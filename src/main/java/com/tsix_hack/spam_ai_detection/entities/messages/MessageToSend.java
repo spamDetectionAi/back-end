@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MessageToSend {
-    private AccountDTO sender;
+    private AccountDTO accountDTO;
     private String object ;
     private String body ;
 }

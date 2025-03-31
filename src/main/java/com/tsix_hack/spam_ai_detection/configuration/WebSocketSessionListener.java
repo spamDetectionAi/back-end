@@ -1,6 +1,7 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
 import com.tsix_hack.spam_ai_detection.entities.messages.MessageRequest;
+import com.tsix_hack.spam_ai_detection.entities.messages.MessageToSend;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -54,14 +55,12 @@ public class WebSocketSessionListener {
         }
     }
 
-    public void sendMessageToUser(MessageRequest messageRequest) {
-        Set<UUID> receivers = messageRequest.getReceivers();
-
+    public void sendMessageToUser(Set<UUID> receivers , MessageToSend messageToSend) {
         for (UUID uuid : receivers) {
             String sessionId = sessions.get(uuid.toString());
             if (sessionId != null) {
                 try {
-                    messagingTemplate.convertAndSendToUser(uuid.toString(), "/queue/messages", messageRequest.getBody());
+                    messagingTemplate.convertAndSendToUser(uuid.toString(), "/queue/messages", messageToSend);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
