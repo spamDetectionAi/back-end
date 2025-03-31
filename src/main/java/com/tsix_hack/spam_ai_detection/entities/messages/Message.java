@@ -1,5 +1,6 @@
-package com.tsix_hack.spam_ai_detection.entities;
+package com.tsix_hack.spam_ai_detection.entities.messages;
 
+import com.tsix_hack.spam_ai_detection.entities.account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,6 +50,12 @@ public class Message {
 
     public Message(@NotNull Account sender, String body ) {
         this.sender = sender;
+        this.body = body;
+    }
+
+    public Message(@NotNull Account sender, String object, String body, Set<UUID> receivers ) {
+        this.sender = sender;
+        this.object = object;
         this.body = body;
     }
 }

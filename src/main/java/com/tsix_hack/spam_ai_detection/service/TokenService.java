@@ -1,5 +1,5 @@
 package com.tsix_hack.spam_ai_detection.service;
-import com.tsix_hack.spam_ai_detection.entities.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.Account;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

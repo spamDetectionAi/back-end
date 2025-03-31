@@ -1,7 +1,8 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
-import com.tsix_hack.spam_ai_detection.entities.MessageRequest;
+import com.tsix_hack.spam_ai_detection.entities.messages.MessageRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -10,14 +11,16 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
+
 public class WebSocketSessionListener {
     private final SimpMessagingTemplate messagingTemplate;
     private static final Map<String, String> sessions = new ConcurrentHashMap<>();
-
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         Map<String, Object> sessionAttributes = (Map<String, Object>) event.getMessage().getHeaders().get("simpSessionAttributes") ;
@@ -51,18 +54,18 @@ public class WebSocketSessionListener {
         }
     }
 
-    public MessageRequest sendMessageToUser(MessageRequest messageRequest) {
-        String userId = messageRequest.getRecipients().toString();
-        String sessionId = sessions.get(userId);
-        if (sessionId != null) {
-            try {
-                messagingTemplate.convertAndSendToUser(userId, "/queue/messages", messageRequest);
-                return messageRequest;
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+    public void sendMessageToUser(MessageRequest messageRequest) {
+        Set<UUID> receivers = messageRequest.getReceivers();
+
+        for (UUID uuid : receivers) {
+            String sessionId = sessions.get(uuid.toString());
+            if (sessionId != null) {
+                try {
+                    messagingTemplate.convertAndSendToUser(uuid.toString(), "/queue/messages", messageRequest.getBody());
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
-        return null;
     }
-
 }

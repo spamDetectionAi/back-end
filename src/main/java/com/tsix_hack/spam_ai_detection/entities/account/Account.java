@@ -1,13 +1,12 @@
-package com.tsix_hack.spam_ai_detection.entities;
+package com.tsix_hack.spam_ai_detection.entities.account;
 
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 @Entity
 @AllArgsConstructor
@@ -47,6 +46,10 @@ public class Account {
 
     public void setAccountPassword(String password) {
         this.password = password;
+    }
+
+    public Account(UUID id ){
+        this.id = id;
     }
 
 }

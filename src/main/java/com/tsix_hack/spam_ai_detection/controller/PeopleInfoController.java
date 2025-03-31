@@ -1,6 +1,8 @@
 package com.tsix_hack.spam_ai_detection.controller;
 
-import com.tsix_hack.spam_ai_detection.entities.PeopleInfo;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfo;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfoDTO;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfoMapper;
 import com.tsix_hack.spam_ai_detection.repositories.PeopleInfoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,8 @@ public class PeopleInfoController {
     }
 
     @GetMapping("/find/{id}")
-    public Optional<PeopleInfo> findById(@PathVariable UUID id) {
+    public PeopleInfoDTO findById(@PathVariable UUID id) {
         UUID me = new UUID(3 , 5) ;
-        return peopleInfoRepository.findById(id);
+        return PeopleInfoMapper.INSTANCE.toDTO(peopleInfoRepository.findById(id).get());
     }
 }

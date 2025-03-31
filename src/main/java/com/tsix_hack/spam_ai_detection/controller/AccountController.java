@@ -1,7 +1,8 @@
 package com.tsix_hack.spam_ai_detection.controller;
 
-import com.tsix_hack.spam_ai_detection.entities.Account;
-import com.tsix_hack.spam_ai_detection.entities.SignInRequest;
+import com.tsix_hack.spam_ai_detection.entities.account.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.AccountDTO;
+import com.tsix_hack.spam_ai_detection.entities.account.SignInRequest;
 import com.tsix_hack.spam_ai_detection.service.AccountService;
 import com.tsix_hack.spam_ai_detection.service.TokenService;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,6 @@ import java.util.UUID;
 public class AccountController {
     private AccountService accountService;
     private TokenService tokenService;
-    @Autowired
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/signIn")
@@ -60,5 +60,18 @@ public class AccountController {
     @PostMapping("/save")
     public ResponseEntity<String> save (@RequestBody Account account ,@RequestHeader("uuid") UUID uuid) {
         return accountService.save(account , uuid) ;
+    }
+
+    /*@GetMapping("/byId")
+    public ResponseEntity<AccountDTO> getById(@RequestHeader("Authorization") String uuid) {
+        String id = tokenService.uuidDecoded(uuid) ;
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(accountService.findById(UUID.fromString(id))) ;
+    }*/
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.findById(id)) ;
     }
 }
