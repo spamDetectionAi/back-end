@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-
 import java.time.LocalDateTime;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,12 +29,26 @@ public class Message {
 
     private String body ;
 
-    @ManyToOne
-    @JoinColumn(name = "attachement_id")
-    private Attachement attachement ;
+    @OneToMany
+    @JoinColumn(name = "message_id")
+    private List<Attachement> attachement = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable
+    (
+            name = "message_reception",
+            joinColumns = @JoinColumn(name = "message_id")
+    )
+    @Column(name = "receivers")
+    private Set<UUID> receivers = new HashSet<>();
 
     @PrePersist
     protected void create() {
         this.sendDateTime = LocalDateTime.now();
+    }
+
+    public Message(@NotNull Account sender, String body ) {
+        this.sender = sender;
+        this.body = body;
     }
 }

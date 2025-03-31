@@ -16,8 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+
 
 
 @Service
@@ -52,8 +55,7 @@ public class AccountService {
        if (phoneVerification.get()
                 .getVerificationCode()
                 .equals(code)) {
-            UUID uuid = phoneVerification.get().getUuid(); ;
-            return uuid ;
+           return phoneVerification.get().getUuid();
         }
         else
             return null ;
@@ -102,6 +104,14 @@ public class AccountService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         System.out.println(passwordEncoder.encode("securePassword123"));
         System.out.println(passwordEncoder.matches("securePassword123", "$2a$10$mV9fwPYggAs54xyp9s.SlOcBNdZa1L5IVz5IBb7loNDZqcBuCr9c2"));
+    }
+
+    public Set<Account> findAllById(Set<UUID> ids) {
+        Set<Account> accounts = new HashSet<>();
+        for (UUID id : ids){
+            accounts.add(accountRepository.findAccountById(id));
+        }
+        return accounts;
     }
 
 }
