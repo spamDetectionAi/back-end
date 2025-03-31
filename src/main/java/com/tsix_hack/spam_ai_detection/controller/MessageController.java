@@ -22,7 +22,8 @@ public class MessageController {
     public ResponseEntity<MessageToSend> sendPrivateMessage(@NotNull @Payload MessageRequest message) {
        return ResponseEntity
                .status(HttpStatus.OK)
-               .body(messageServices.sendMessage(message));}
+               .body(messageServices.sendMessage(message));
+    }
 
     @MessageMapping("/test")
     @SendTo("/topic/public")
