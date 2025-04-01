@@ -12,6 +12,12 @@ import com.tsix_hack.spam_ai_detection.repositories.MessageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class MessageServices {
@@ -29,8 +35,20 @@ public class MessageServices {
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
         save(messageRequest);
-        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account)) ;
+        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account));
+        messageToSend.setSendDateTime(LocalDateTime.now());
         webSocketSessionListener.sendMessageToUser(messageRequest.getReceivers(), messageToSend);
         return messageToSend ;
+    }
+
+    public List<MessageToSend> messagesByReceiver(UUID receiver) {
+       List<Message> messages = messageRepository.findByReceiverId(receiver) ;
+       List<MessageToSend> messageToSends = new ArrayList<>();
+       for (Message message : messages) {
+           MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message) ;
+           messageToSend.setAccountDTO(AccountMapper.INSTANCE.toDTO(message.getSender()));
+           messageToSends.add(messageToSend);
+       }
+       return messageToSends;
     }
 }

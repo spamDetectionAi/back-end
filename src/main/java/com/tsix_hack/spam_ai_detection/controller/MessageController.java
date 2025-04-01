@@ -11,7 +11,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
 
 @Controller
 @AllArgsConstructor
@@ -32,6 +37,10 @@ public class MessageController {
         return message;
     }
 
+    @GetMapping("/messages/{id}")
+    public ResponseEntity<List<MessageToSend>> getAllMessages(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(messageServices.messagesByReceiver(id)) ;
+    }
 
 
 }
