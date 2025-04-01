@@ -12,6 +12,7 @@ import com.tsix_hack.spam_ai_detection.repositories.MessageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,8 @@ public class MessageServices {
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
         save(messageRequest);
-        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account)) ;
+        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account));
+        messageToSend.setSendDateTime(LocalDateTime.now());
         webSocketSessionListener.sendMessageToUser(messageRequest.getReceivers(), messageToSend);
         return messageToSend ;
     }
