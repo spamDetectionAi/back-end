@@ -70,8 +70,8 @@ public class AccountController {
                 .body(accountService.findById(UUID.fromString(id))) ;
     }*/
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AccountDTO> findById(@PathVariable UUID id) {
+    @GetMapping("/id")
+    public ResponseEntity<AccountDTO> findById(@RequestHeader("Authorization") String id) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.findById(id)) ;
     }
 }
