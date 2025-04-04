@@ -24,29 +24,32 @@ public class MessageServices {
     private WebSocketSessionListener webSocketSessionListener;
     private AccountRepository accountRepository;
     private MessageRepository messageRepository;
+    private TokenService tokenService;
 
-   private Message save(MessageRequest messageRequest) {
+   private Long save(MessageRequest messageRequest) {
        Account account = new Account(messageRequest.getSenderId()) ;
        Message msg = MessageMapper.INSTANCE.toEntity(messageRequest, account);
-       messageRepository.save(msg);
-       return msg;
+       return messageRepository.save(msg).getId();
    }
 
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
-        save(messageRequest);
+        Long id = save(messageRequest);
         MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account));
         messageToSend.setSendDateTime(LocalDateTime.now());
+        messageToSend.setId(id);
         webSocketSessionListener.sendMessageToUser(messageRequest.getReceivers(), messageToSend);
         return messageToSend ;
     }
 
-    public List<MessageToSend> messagesByReceiver(UUID receiver) {
-       List<Message> messages = messageRepository.findByReceiverId(receiver) ;
+    public List<MessageToSend> messagesByReceiver(String token) {
+       UUID id = UUID.fromString(tokenService.uuidDecoded(token));
+       List<Message> messages = messageRepository.findByReceiverId(id) ;
        List<MessageToSend> messageToSends = new ArrayList<>();
        for (Message message : messages) {
            MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message) ;
            messageToSend.setAccountDTO(AccountMapper.INSTANCE.toDTO(message.getSender()));
+           messageToSend.setId(message.getId());
            messageToSends.add(messageToSend);
        }
        return messageToSends;
