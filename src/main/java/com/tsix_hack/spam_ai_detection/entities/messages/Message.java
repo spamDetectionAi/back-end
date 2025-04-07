@@ -34,7 +34,7 @@ public class Message {
 
     @OneToMany
     @JoinColumn(name = "message_id")
-    private List<Attachement> attachement = new ArrayList<>();
+    private List<Attachment> attachement = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class MessageToSend {
+    private Long id;
     private AccountDTO accountDTO;
     private String object ;
     private String body ;

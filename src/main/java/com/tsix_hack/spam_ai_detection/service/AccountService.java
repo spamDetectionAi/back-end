@@ -110,7 +110,8 @@ public class AccountService {
         return accounts;
     }
 
-    public AccountDTO findById(UUID id) {
+    public AccountDTO findById(String token) {
+        UUID id = UUID.fromString(tokenService.uuidDecoded(token));
         Account account = accountRepository.findAccountById(id);
         return AccountMapper.INSTANCE.toDTO(account);
     }

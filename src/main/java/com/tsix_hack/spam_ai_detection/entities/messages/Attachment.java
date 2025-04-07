@@ -15,7 +15,7 @@ import java.net.URL;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Attachement {
+public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id ;
