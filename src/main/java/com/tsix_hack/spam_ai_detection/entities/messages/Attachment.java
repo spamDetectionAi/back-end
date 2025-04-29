@@ -1,9 +1,6 @@
 package com.tsix_hack.spam_ai_detection.entities.messages;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,8 +18,12 @@ public class Attachment {
     private Long id ;
 
     @NotNull
-    private URL url ;
+    private String originalFilename ;
 
     @NotNull
     private String type ;
+
+    @NotNull
+    @Column(unique = true)
+    private String key ;
 }
