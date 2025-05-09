@@ -15,6 +15,7 @@ public interface MessageMapper {
     @Mapping(source = "accountDTO", target = "sender")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sendDateTime", ignore = true)
+    @Mapping(target = "receivers", ignore = true)
     Message toEntity(MessageRequest messageRequest , Account accountDTO);
 
     @Mapping(source = "sender", target = "accountDTO")

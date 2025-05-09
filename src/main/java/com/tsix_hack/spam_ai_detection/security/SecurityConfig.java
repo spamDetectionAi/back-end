@@ -77,7 +77,6 @@ public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder() throws JOSEException {
-        System.out.println("Clé publique utilisée : " + rsaKey.toRSAPublicKey());
         return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
     }
 
@@ -117,6 +116,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.addAllowedHeader("Content-Type");
         configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("uuid");
         configuration.addExposedHeader("X-Total-Count");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

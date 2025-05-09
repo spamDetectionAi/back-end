@@ -84,4 +84,12 @@ public class AccountController {
     public ResponseEntity<List<MessageToSend>> getAllMessages(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK).body(messageServices.messagesByReceiver(token)) ;
     }
+
+    @GetMapping("/mail/{email}")
+    public ResponseEntity<String>mailExistance(@PathVariable String email){
+        if (accountService.emailCheck(email))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("this email is already in use") ;
+        else
+            return ResponseEntity.status(HttpStatus.OK).body("this email is available") ;
+    }
 }

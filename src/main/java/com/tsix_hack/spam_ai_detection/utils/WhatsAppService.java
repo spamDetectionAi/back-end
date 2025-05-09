@@ -15,7 +15,7 @@ public class WhatsAppService {
     public void sendMsg(String to , String message) throws IOException {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
-                .add("token", System.getenv("token_whatsApp"))
+                .add("token", System.getenv("TOKEN_WHATSAPP"))
                 .add("to", to)
                 .add("body", message)
                 .build();

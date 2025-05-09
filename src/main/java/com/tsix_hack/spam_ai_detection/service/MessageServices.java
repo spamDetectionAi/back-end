@@ -9,14 +9,12 @@ import com.tsix_hack.spam_ai_detection.entities.messages.MessageRequest;
 import com.tsix_hack.spam_ai_detection.entities.messages.MessageToSend;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessageRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -27,18 +25,36 @@ public class MessageServices {
     private TokenService tokenService;
 
    private Long save(MessageRequest messageRequest) {
+       Set<UUID> uuidSet = new HashSet<>();
+       for (String mail : messageRequest.getReceivers()){
+           Optional<Account> account = accountRepository.findAccountByEmail(mail);
+           if (account.isPresent()){
+               uuidSet.add(account.get().getId());
+           }
+       }
        Account account = new Account(messageRequest.getSenderId()) ;
        Message msg = MessageMapper.INSTANCE.toEntity(messageRequest, account);
+       msg.setReceivers(uuidSet);
        return messageRepository.save(msg).getId();
    }
-
+    @Transactional
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
         Long id = save(messageRequest);
         MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account));
         messageToSend.setSendDateTime(LocalDateTime.now());
         messageToSend.setId(id);
-        webSocketSessionListener.sendMessageToUser(messageRequest.getReceivers(), messageToSend);
+        Set<UUID> receivers = new HashSet<>();
+        List<String> notFoundEmails = new ArrayList<>();
+        for (String email : messageRequest.getReceivers()) {
+            Optional<Account> receiver = accountRepository.findAccountByEmail(email);
+            if (receiver.isPresent()) {
+                receivers.add(receiver.get().getId());
+            }else {
+                notFoundEmails.add(email);
+            }
+        }
+        webSocketSessionListener.sendMessageToUser(receivers, messageToSend);
         return messageToSend ;
     }
 

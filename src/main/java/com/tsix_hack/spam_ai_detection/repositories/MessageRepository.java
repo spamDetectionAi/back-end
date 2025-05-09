@@ -11,6 +11,6 @@ import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     Message findById(long id);
-    @Query("SELECT m FROM Message m WHERE :receiverId IN elements(m.receivers)")
+    @Query("SELECT m FROM Message m WHERE :receiverId IN elements(m.receivers) order by m.sendDateTime desc ")
     List<Message> findByReceiverId(@Param("receiverId") UUID receiverId);
 }

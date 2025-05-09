@@ -40,6 +40,10 @@ public class Account {
     @Size(min = 6)
     private String password ;
 
+    public Account(String email) {
+        this.email = email;
+    }
+
     public void setAccountPermission(int id) {
         this.permission = new Permission(id);
     }

@@ -16,6 +16,5 @@ public class MessageRequest {
     private UUID senderId;
     private String object ;
     private String body ;
-    private Set<UUID> receivers ;
-
+    private Set<String> receivers ;
 }

@@ -71,12 +71,12 @@ public class AccountService {
                 .equals(uuid);
     }
 
-    private boolean emailCheck (String email) {
+    public Boolean emailCheck (String email) {
         return accountRepository.findAccountByEmail(email).isPresent();
     }
 
     private ResponseEntity<String> savingAction (Account account){
-        //phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber())
+        phoneVerificationRepository.deletePhoneNumberVerificationByPhoneNumber(account.getPhoneNumber()) ;
         account.setAccountPermission(2);
         account.setAccountPassword(passwordEncoder.encode(account.getPassword())) ;
         Account account1 = accountRepository.save(account);
@@ -94,10 +94,10 @@ public class AccountService {
                     .status(HttpStatus.CONFLICT)
                     .body(account.getEmail() + " is already in use") ;
 
-        /*else if (!identification(account.getPhoneNumber(), uuid))
+        else if (!identification(account.getPhoneNumber(), uuid))
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("your verification code "+uuid.toString()+" is invalid") ;*/
+                    .body("your verification code "+uuid.toString()+" is invalid") ;
 
         return savingAction(account);
     }
@@ -115,5 +115,6 @@ public class AccountService {
         Account account = accountRepository.findAccountById(id);
         return AccountMapper.INSTANCE.toDTO(account);
     }
+
 
 }
