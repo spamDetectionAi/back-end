@@ -28,76 +28,81 @@ public class MessageServices {
     private AccountRepository accountRepository;
     private MessageRepository messageRepository;
     private TokenService tokenService;
-    private ForeignAddressesRepository foreignAddressesRepository ;
-    private NotFoundAddressesRepository notFoundAddressesRepository ;
+    private ForeignAddressesRepository foreignAddressesRepository;
+    private NotFoundAddressesRepository notFoundAddressesRepository;
 
-    private Long saveAction(MessageRequest messageRequest) {
-        Long id = null ;
+    private Map<String, Object> saveAction(MessageRequest messageRequest) {
+        Map<String, Object> map = new HashMap<>();
         if (!messageRequest.getReceivers().isEmpty()) {
-            AddressClassification addressClassification = new AddressClassification(messageRequest.getReceivers() , accountRepository);
-            Set<Long> foreignIds = foreignAddressesId(addressClassification) ;
-            Set<Long> notFoundIds = notFoundAddressesId(addressClassification) ;
-            Set<UUID> localIds = localAddressId(addressClassification) ;
+            AddressClassification addressClassification = new AddressClassification(messageRequest.getReceivers(), accountRepository);
+            Set<Long> foreignIds = foreignAddressesId(addressClassification);
+            Set<Long> notFoundIds = notFoundAddressesId(addressClassification);
+            Set<UUID> localIds = localAddressId(addressClassification);
+            map.put("localIds", localIds);
             Message msg = MessageMapper.INSTANCE.toEntity(messageRequest, new Account(messageRequest.getSenderId()));
             if (!localIds.isEmpty()) msg.setReceivers(localIds);
             if (!foreignIds.isEmpty()) msg.setForeignReceivers(foreignIds);
             if (!notFoundIds.isEmpty()) msg.setNotFoundReceivers(notFoundIds);
-            id =  messageRepository.save(msg).getId();
+            Long id = messageRepository.save(msg).getId();
+            map.put("id", id);
         }
-        return id ;
+
+
+        return map;
     }
-    
-    private Set<Long> foreignAddressesId(AddressClassification addressClassification){
+
+    private Set<Long> foreignAddressesId(AddressClassification addressClassification) {
         Set<String> foreignAddressesId = addressClassification.getForeignAddresses();
-        Set<Long>foreignAddressesIdLong = new HashSet<>();
-        for (String address : foreignAddressesId){
+        Set<Long> foreignAddressesIdLong = new HashSet<>();
+        for (String address : foreignAddressesId) {
             Optional<ForeignAddresses> foreignAddresses = foreignAddressesRepository.findByAddress(address);
-            if (foreignAddresses.isPresent()){
+            if (foreignAddresses.isPresent()) {
                 foreignAddressesIdLong.add(foreignAddresses.get().getId());
-            }else {
+            } else {
                 foreignAddressesIdLong
                         .add(foreignAddressesRepository
                                 .save(new ForeignAddresses(address))
-                                .getId()) ;
+                                .getId());
             }
         }
-        return foreignAddressesIdLong ;
+        return foreignAddressesIdLong;
     }
 
-    private Set<Long> notFoundAddressesId(AddressClassification addressClassification){
+    private Set<Long> notFoundAddressesId(AddressClassification addressClassification) {
         Set<String> notFoundAddresses = addressClassification.getNotFoundAddresses();
-        Set<Long>notFoundAddressIds = new HashSet<>();
-        for (String address : notFoundAddresses){
+        Set<Long> notFoundAddressIds = new HashSet<>();
+        for (String address : notFoundAddresses) {
             Optional<NotFoundAddress> notFoundAddress = notFoundAddressesRepository.findIdByAddress(address);
-            if (notFoundAddress.isPresent()){
+            if (notFoundAddress.isPresent()) {
                 notFoundAddressIds.add(notFoundAddress.get().getId());
-            }else {
+            } else {
                 notFoundAddressIds
                         .add(notFoundAddressesRepository
                                 .save(new NotFoundAddress(address))
-                                .getId()) ;
+                                .getId());
             }
         }
-        return notFoundAddressIds ;
+        return notFoundAddressIds;
     }
-    
+
     private Set<UUID> localAddressId(AddressClassification addressClassification) {
-        Set<String> localAddresses = addressClassification.getLocalAddresses() ;
-        Set<UUID> localAddressesIds = new HashSet<>() ;
+        Set<String> localAddresses = addressClassification.getLocalAddresses();
+        Set<UUID> localAddressesIds = new HashSet<>();
         for (String address : localAddresses) {
-           localAddressesIds.add(accountRepository.findAccountByEmail(address).get().getId()) ;
+            localAddressesIds.add(accountRepository.findAccountByEmail(address).get().getId());
         }
-        return localAddressesIds ;
+        return localAddressesIds;
     }
 
     @Transactional
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
-        Long id = saveAction(messageRequest);
-        MessageToSend messageToSend = createMessageToSend(messageRequest , account , id , LocalDateTime.now());
-        Set<UUID> receivers = new HashSet<>();
-        webSocketSessionListener.sendMessageToUser(receivers, messageToSend);
-        return messageToSend ;
+        Map<String, Object> idAndReceivers = saveAction(messageRequest);
+        Long id = (Long) idAndReceivers.get("id");
+        Set<UUID> localids = (Set<UUID>) idAndReceivers.get("localIds");
+        MessageToSend messageToSend = createMessageToSend(messageRequest, account, id, LocalDateTime.now());
+        webSocketSessionListener.sendMessageToUser(localids, messageToSend);
+        return messageToSend;
     }
 
     private MessageToSend createMessageToSend(MessageRequest messageRequest, Account senderAccount, Long messageId, LocalDateTime sendDateTime) {
@@ -109,15 +114,15 @@ public class MessageServices {
 
 
     public List<MessageToSend> messagesByReceiver(String token) {
-       UUID id = UUID.fromString(tokenService.uuidDecoded(token));
-       List<Message> messages = messageRepository.findByReceiverId(id) ;
-       List<MessageToSend> messageToSends = new ArrayList<>();
-       for (Message message : messages) {
-           MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message) ;
-           messageToSend.setAccountDTO(AccountMapper.INSTANCE.toDTO(message.getSender()));
-           messageToSend.setId(message.getId());
-           messageToSends.add(messageToSend);
-       }
-       return messageToSends;
+        UUID id = UUID.fromString(tokenService.uuidDecoded(token));
+        List<Message> messages = messageRepository.findByReceiverId(id);
+        List<MessageToSend> messageToSends = new ArrayList<>();
+        for (Message message : messages) {
+            MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message);
+            messageToSend.setAccountDTO(AccountMapper.INSTANCE.toDTO(message.getSender()));
+            messageToSend.setId(message.getId());
+            messageToSends.add(messageToSend);
+        }
+        return messageToSends;
     }
 }
