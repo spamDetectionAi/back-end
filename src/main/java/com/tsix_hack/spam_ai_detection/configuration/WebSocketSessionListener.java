@@ -1,9 +1,7 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageRequest;
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageToSend;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;

@@ -1,15 +1,14 @@
 package com.tsix_hack.spam_ai_detection.controller;
 
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfo;
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfoDTO;
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfoMapper;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm.PeopleInfo;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm.PeopleInfoDTO;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.mapper.PeopleInfoMapper;
 import com.tsix_hack.spam_ai_detection.repositories.PeopleInfoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController

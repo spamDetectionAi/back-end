@@ -1,9 +1,9 @@
 package com.tsix_hack.spam_ai_detection.service;
 
-import com.tsix_hack.spam_ai_detection.entities.account.Account;
-import com.tsix_hack.spam_ai_detection.entities.account.AccountDTO;
-import com.tsix_hack.spam_ai_detection.entities.account.AccountMapper;
-import com.tsix_hack.spam_ai_detection.entities.account.PhoneNumberVerification;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.AccountDTO;
+import com.tsix_hack.spam_ai_detection.entities.account.mapper.AccountMapper;
+import com.tsix_hack.spam_ai_detection.entities.account.complementaryElements.PhoneNumberVerification;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.PhoneVerificationRepository;
 import com.tsix_hack.spam_ai_detection.utils.RandomGenerator;

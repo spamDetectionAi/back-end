@@ -1,15 +1,13 @@
 package com.tsix_hack.spam_ai_detection.controller;
 
-import com.tsix_hack.spam_ai_detection.entities.account.Account;
-import com.tsix_hack.spam_ai_detection.entities.account.AccountDTO;
-import com.tsix_hack.spam_ai_detection.entities.account.SignInRequest;
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageToSend;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.AccountDTO;
+import com.tsix_hack.spam_ai_detection.entities.account.complementaryElements.SignInRequest;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
 import com.tsix_hack.spam_ai_detection.service.AccountService;
 import com.tsix_hack.spam_ai_detection.service.MessageServices;
 import com.tsix_hack.spam_ai_detection.service.TokenService;
 import lombok.AllArgsConstructor;
-import org.aspectj.weaver.ast.Or;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,4 +1,4 @@
-package com.tsix_hack.spam_ai_detection.entities.account;
+package com.tsix_hack.spam_ai_detection.entities.account.complementaryElements;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,10 +1,7 @@
-package com.tsix_hack.spam_ai_detection.entities.messages;
+package com.tsix_hack.spam_ai_detection.entities.messages.messageForm;
 
-import com.tsix_hack.spam_ai_detection.entities.account.AccountDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.AccountDTO;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class MessageToSend {
     private Long id;
     private AccountDTO accountDTO;

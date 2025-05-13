@@ -1,14 +1,19 @@
 package com.tsix_hack.spam_ai_detection.service;
 
 import com.tsix_hack.spam_ai_detection.configuration.WebSocketSessionListener;
-import com.tsix_hack.spam_ai_detection.entities.account.Account;
-import com.tsix_hack.spam_ai_detection.entities.account.AccountMapper;
-import com.tsix_hack.spam_ai_detection.entities.messages.Message;
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageMapper;
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageRequest;
-import com.tsix_hack.spam_ai_detection.entities.messages.MessageToSend;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.mapper.AccountMapper;
+import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.AddressClassification;
+import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.ForeignAddresses;
+import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.NotFoundAddress;
+import com.tsix_hack.spam_ai_detection.entities.messages.mapper.MessageMapper;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.Message;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageRequest;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
-import com.tsix_hack.spam_ai_detection.repositories.MessageRepository;
+import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.ForeignAddressesRepository;
+import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MessageRepository;
+import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.NotFoundAddressesRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,40 +28,85 @@ public class MessageServices {
     private AccountRepository accountRepository;
     private MessageRepository messageRepository;
     private TokenService tokenService;
+    private ForeignAddressesRepository foreignAddressesRepository ;
+    private NotFoundAddressesRepository notFoundAddressesRepository ;
 
-   private Long save(MessageRequest messageRequest) {
-       Set<UUID> uuidSet = new HashSet<>();
-       for (String mail : messageRequest.getReceivers()){
-           Optional<Account> account = accountRepository.findAccountByEmail(mail);
-           if (account.isPresent()){
-               uuidSet.add(account.get().getId());
-           }
-       }
-       Account account = new Account(messageRequest.getSenderId()) ;
-       Message msg = MessageMapper.INSTANCE.toEntity(messageRequest, account);
-       msg.setReceivers(uuidSet);
-       return messageRepository.save(msg).getId();
-   }
+    private Long saveAction(MessageRequest messageRequest) {
+        Long id = null ;
+        if (!messageRequest.getReceivers().isEmpty()) {
+            AddressClassification addressClassification = new AddressClassification(messageRequest.getReceivers() , accountRepository);
+            Set<Long> foreignIds = foreignAddressesId(addressClassification) ;
+            Set<Long> notFoundIds = notFoundAddressesId(addressClassification) ;
+            Set<UUID> localIds = localAddressId(addressClassification) ;
+            Message msg = MessageMapper.INSTANCE.toEntity(messageRequest, new Account(messageRequest.getSenderId()));
+            if (!localIds.isEmpty()) msg.setReceivers(localIds);
+            if (!foreignIds.isEmpty()) msg.setForeignReceivers(foreignIds);
+            if (!notFoundIds.isEmpty()) msg.setNotFoundReceivers(notFoundIds);
+            id =  messageRepository.save(msg).getId();
+        }
+        return id ;
+    }
+    
+    private Set<Long> foreignAddressesId(AddressClassification addressClassification){
+        Set<String> foreignAddressesId = addressClassification.getForeignAddresses();
+        Set<Long>foreignAddressesIdLong = new HashSet<>();
+        for (String address : foreignAddressesId){
+            Optional<ForeignAddresses> foreignAddresses = foreignAddressesRepository.findByAddress(address);
+            if (foreignAddresses.isPresent()){
+                foreignAddressesIdLong.add(foreignAddresses.get().getId());
+            }else {
+                foreignAddressesIdLong
+                        .add(foreignAddressesRepository
+                                .save(new ForeignAddresses(address))
+                                .getId()) ;
+            }
+        }
+        return foreignAddressesIdLong ;
+    }
+
+    private Set<Long> notFoundAddressesId(AddressClassification addressClassification){
+        Set<String> notFoundAddresses = addressClassification.getNotFoundAddresses();
+        Set<Long>notFoundAddressIds = new HashSet<>();
+        for (String address : notFoundAddresses){
+            Optional<NotFoundAddress> notFoundAddress = notFoundAddressesRepository.findIdByAddress(address);
+            if (notFoundAddress.isPresent()){
+                notFoundAddressIds.add(notFoundAddress.get().getId());
+            }else {
+                notFoundAddressIds
+                        .add(notFoundAddressesRepository
+                                .save(new NotFoundAddress(address))
+                                .getId()) ;
+            }
+        }
+        return notFoundAddressIds ;
+    }
+    
+    private Set<UUID> localAddressId(AddressClassification addressClassification) {
+        Set<String> localAddresses = addressClassification.getLocalAddresses() ;
+        Set<UUID> localAddressesIds = new HashSet<>() ;
+        for (String address : localAddresses) {
+           localAddressesIds.add(accountRepository.findAccountByEmail(address).get().getId()) ;
+        }
+        return localAddressesIds ;
+    }
+
     @Transactional
     public MessageToSend sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
-        Long id = save(messageRequest);
-        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest , AccountMapper.INSTANCE.toDTO(account));
-        messageToSend.setSendDateTime(LocalDateTime.now());
-        messageToSend.setId(id);
+        Long id = saveAction(messageRequest);
+        MessageToSend messageToSend = createMessageToSend(messageRequest , account , id , LocalDateTime.now());
         Set<UUID> receivers = new HashSet<>();
-        List<String> notFoundEmails = new ArrayList<>();
-        for (String email : messageRequest.getReceivers()) {
-            Optional<Account> receiver = accountRepository.findAccountByEmail(email);
-            if (receiver.isPresent()) {
-                receivers.add(receiver.get().getId());
-            }else {
-                notFoundEmails.add(email);
-            }
-        }
         webSocketSessionListener.sendMessageToUser(receivers, messageToSend);
         return messageToSend ;
     }
+
+    private MessageToSend createMessageToSend(MessageRequest messageRequest, Account senderAccount, Long messageId, LocalDateTime sendDateTime) {
+        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest, AccountMapper.INSTANCE.toDTO(senderAccount));
+        messageToSend.setSendDateTime(sendDateTime);
+        messageToSend.setId(messageId);
+        return messageToSend;
+    }
+
 
     public List<MessageToSend> messagesByReceiver(String token) {
        UUID id = UUID.fromString(tokenService.uuidDecoded(token));
