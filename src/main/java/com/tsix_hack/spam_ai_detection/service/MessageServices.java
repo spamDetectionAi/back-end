@@ -86,12 +86,7 @@ public class MessageServices {
     }
 
     private Set<UUID> localAddressId(AddressClassification addressClassification) {
-        Set<String> localAddresses = addressClassification.getLocalAddresses();
-        Set<UUID> localAddressesIds = new HashSet<>();
-        for (String address : localAddresses) {
-            localAddressesIds.add(accountRepository.findAccountByEmail(address).get().getId());
-        }
-        return localAddressesIds;
+        return addressClassification.getUUIDs();
     }
 
     @Transactional

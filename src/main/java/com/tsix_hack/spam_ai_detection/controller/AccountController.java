@@ -65,14 +65,6 @@ public class AccountController {
         return accountService.save(account , uuid) ;
     }
 
-    /*@GetMapping("/byId")
-    public ResponseEntity<AccountDTO> getById(@RequestHeader("Authorization") String uuid) {
-        String id = tokenService.uuidDecoded(uuid) ;
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(accountService.findById(UUID.fromString(id))) ;
-    }*/
-
     @GetMapping("/info")
     public ResponseEntity<AccountDTO> findById(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.findById(token)) ;
