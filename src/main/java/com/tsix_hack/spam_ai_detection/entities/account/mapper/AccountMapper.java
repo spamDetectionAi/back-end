@@ -1,6 +1,8 @@
-package com.tsix_hack.spam_ai_detection.entities.account;
+package com.tsix_hack.spam_ai_detection.entities.account.mapper;
 
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfoMapper;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.AccountDTO;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.mapper.PeopleInfoMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

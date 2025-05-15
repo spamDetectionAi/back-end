@@ -1,4 +1,4 @@
-package com.tsix_hack.spam_ai_detection.entities.peopleInfo;
+package com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

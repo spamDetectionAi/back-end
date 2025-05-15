@@ -34,7 +34,7 @@ public class BucketService {
         metadata.setContentType(file.getContentType());
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
         s3Client.putObject(bucketName, key, byteArrayInputStream, metadata);
-        Date expiration = new Date(System.currentTimeMillis() + 3600 * 1000); // 1h
+        Date expiration = new Date(System.currentTimeMillis() + 3600 * 1000);
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucketName, key)
                         .withMethod(HttpMethod.GET)

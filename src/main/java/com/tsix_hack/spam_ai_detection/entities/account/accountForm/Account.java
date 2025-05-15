@@ -1,6 +1,7 @@
-package com.tsix_hack.spam_ai_detection.entities.account;
+package com.tsix_hack.spam_ai_detection.entities.account.accountForm;
 
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfo;
+import com.tsix_hack.spam_ai_detection.entities.account.permissonForm.Permission;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm.PeopleInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

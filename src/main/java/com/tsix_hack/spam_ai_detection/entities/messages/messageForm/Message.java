@@ -1,6 +1,6 @@
-package com.tsix_hack.spam_ai_detection.entities.messages;
+package com.tsix_hack.spam_ai_detection.entities.messages.messageForm;
 
-import com.tsix_hack.spam_ai_detection.entities.account.Account;
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +30,7 @@ public class Message {
 
     private String object ;
 
+    @Column(columnDefinition = "TEXT")
     private String body ;
 
     @OneToMany
@@ -44,6 +45,24 @@ public class Message {
     )
     @Column(name = "receivers")
     private Set<UUID> receivers = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable
+    (
+            name = "foreign_messages",
+            joinColumns = @JoinColumn(name = "message_id")
+    )
+    @Column(name = "foreign_receiver_id")
+    private Set<Long> foreignReceivers = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable
+            (
+                    name = "not_found_receivers",
+                    joinColumns = @JoinColumn(name = "message_id")
+            )
+    @Column(name = "not_found_receiver_id")
+    private Set<Long> notFoundReceivers = new HashSet<>();
 
     @PrePersist
     protected void create() {

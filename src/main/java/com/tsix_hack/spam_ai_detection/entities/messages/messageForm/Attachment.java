@@ -1,12 +1,10 @@
-package com.tsix_hack.spam_ai_detection.entities.messages;
+package com.tsix_hack.spam_ai_detection.entities.messages.messageForm;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-
-import java.net.URL;
 
 @Entity
 @AllArgsConstructor

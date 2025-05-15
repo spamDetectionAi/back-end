@@ -1,12 +1,9 @@
-package com.tsix_hack.spam_ai_detection.entities.peopleInfo;
+package com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm;
 
-import com.tsix_hack.spam_ai_detection.entities.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.UUID;
-import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @NoArgsConstructor
