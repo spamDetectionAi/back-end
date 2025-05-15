@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class MessageToSend {
     private Long id;
     private AccountDTO accountDTO;

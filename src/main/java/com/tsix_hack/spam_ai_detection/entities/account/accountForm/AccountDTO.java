@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class AccountDTO {
     private String email;
     private PeopleInfoDTO peopleInfoDTO;

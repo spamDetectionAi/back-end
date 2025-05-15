@@ -1,6 +1,8 @@
 package com.tsix_hack.spam_ai_detection.controller;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.Message;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageRequest;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.SentMessages;
 import com.tsix_hack.spam_ai_detection.service.MessageServices;
 import com.tsix_hack.spam_ai_detection.service.TokenService;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,11 @@ public class MessageController {
     public void messageSend(@RequestBody MessageRequest messageRequest , @RequestHeader("Authorization") String token) {
         messageRequest.setSenderId(UUID.fromString(tokenService.uuidDecoded(token)));
         messageServices.sendMessage(messageRequest);
+    }
+
+    @GetMapping("/sent/{id}")
+    public List<SentMessages> findBySender(@PathVariable UUID id){
+        return messageServices.findSent(id) ;
     }
 
 }

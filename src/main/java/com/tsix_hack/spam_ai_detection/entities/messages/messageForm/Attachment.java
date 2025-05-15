@@ -23,5 +23,5 @@ public class Attachment {
 
     @NotNull
     @Column(unique = true)
-    private String key ;
+    private String uniqueFileName ;
 }

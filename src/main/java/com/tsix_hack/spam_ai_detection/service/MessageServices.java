@@ -10,6 +10,7 @@ import com.tsix_hack.spam_ai_detection.entities.messages.mapper.MessageMapper;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.Message;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageRequest;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.SentMessages;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.ForeignAddressesRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MessageRepository;
@@ -120,4 +121,42 @@ public class MessageServices {
         }
         return messageToSends;
     }
+
+    public List<SentMessages> findSent(UUID id) {
+        List<SentMessages> sentMessages = new ArrayList<>();
+        List<Message> messages = messageRepository.findMessagesBySender(new Account(id));
+        for (Message message : messages) {
+            SentMessages sentMessage = MessageMapper.INSTANCE.toSentMessages(message);
+            Set<String> receivers = new HashSet<>();
+            if (!message.getReceivers().isEmpty()){
+                receivers.addAll(getOfLocalReceivers(message.getReceivers())) ;
+            }
+           if (!message.getForeignReceivers().isEmpty()){
+                receivers.addAll(getOfForeignReceivers(message.getForeignReceivers())) ;
+            }
+            sentMessage.setReceivers(receivers);
+            sentMessages.add(sentMessage);
+        }
+        ;
+        return sentMessages;
+    }
+
+    private Set<String> getOfLocalReceivers(Set<UUID> local) {
+        Set<String> emails = new HashSet<>();
+
+        for (UUID uuid : local) {
+            emails.add(accountRepository.findAccountById(uuid).getEmail());
+        }
+
+        return emails;
+    }
+
+    private Set<String> getOfForeignReceivers(Set<Long> foreign) {
+        Set<String> emails = new HashSet<>();
+        for (Long id : foreign) {
+            emails.add(foreignAddressesRepository.findById(id).get().getAddress());
+        }
+        return emails;
+    }
+
 }

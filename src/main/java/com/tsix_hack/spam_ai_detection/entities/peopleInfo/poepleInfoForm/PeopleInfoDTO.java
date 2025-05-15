@@ -1,14 +1,13 @@
 package com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 public class PeopleInfoDTO {
     private String firstName ;
     private String SecondName ;

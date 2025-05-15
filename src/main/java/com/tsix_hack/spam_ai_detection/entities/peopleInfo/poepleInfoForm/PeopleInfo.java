@@ -1,9 +1,7 @@
 package com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -15,6 +13,8 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "people_info")
+@EqualsAndHashCode
+@ToString
 public class PeopleInfo implements Serializable {
     @Id
     @GeneratedValue(generator = "UUID")
