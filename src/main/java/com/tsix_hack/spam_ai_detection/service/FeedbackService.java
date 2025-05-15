@@ -1,10 +1,13 @@
 package com.tsix_hack.spam_ai_detection.service;
 
+import com.tsix_hack.spam_ai_detection.entities.account.accountForm.Account;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm.PeopleInfo;
 import com.tsix_hack.spam_ai_detection.entities.preference.PeoplePreference;
 import com.tsix_hack.spam_ai_detection.entities.preference.PeoplePreferenceDTO;
-import com.tsix_hack.spam_ai_detection.entities.peopleInfo.PeopleInfo;
+
 import com.tsix_hack.spam_ai_detection.exceptions.FeedbackProcessingException;
 import com.tsix_hack.spam_ai_detection.exceptions.UserNotFoundException;
+import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.PeoplePreferenceRepository;
 import com.tsix_hack.spam_ai_detection.repositories.PeopleInfoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,23 +29,23 @@ public class FeedbackService {
     private static final String HAM_LABEL = "ham";
 
     private final PeoplePreferenceRepository preferenceRepository;
-    private final PeopleInfoRepository peopleInfoRepository;
+    private final AccountRepository accountRepository;
     private final RestTemplate restTemplate;
-    private final String fastApiUrl;
+    private final String fastApiUrl  ;
 
     public FeedbackService(
             PeoplePreferenceRepository preferenceRepository,
-            PeopleInfoRepository peopleInfoRepository,
+            AccountRepository accountRepository,
             RestTemplate restTemplate,
             @Value("${fastapi.feedback.url}") String fastApiUrl) {
         this.preferenceRepository = preferenceRepository;
-        this.peopleInfoRepository = peopleInfoRepository;
+        this.accountRepository = accountRepository;
         this.restTemplate = restTemplate;
         this.fastApiUrl = fastApiUrl;
     }
 
     public PeoplePreference saveFeedbackToDB(PeoplePreferenceDTO dto) {
-        PeopleInfo user = peopleInfoRepository.findById(dto.getUserId())
+        Account user = accountRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(dto.getUserId()));
 
         validateFeedbackInput(dto);
