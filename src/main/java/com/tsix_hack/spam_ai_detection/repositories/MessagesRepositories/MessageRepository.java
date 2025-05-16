@@ -19,4 +19,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     @Query("SELECT m FROM Message m WHERE m.sender = :account order by m.sendDateTime desc ")
     List<Message> findMessagesBySender(Account account) ;
+
 }
