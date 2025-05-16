@@ -29,9 +29,9 @@ public class MessageController {
         messageServices.sendMessage(messageRequest);
     }
 
-    @GetMapping("/sent/{id}")
-    public List<SentMessages> findBySender(@PathVariable UUID id){
-        return messageServices.findSent(id) ;
+    @GetMapping("/sent")
+    public List<SentMessages> findBySender(@RequestHeader("Authorization") String token){
+        return messageServices.findSent(token) ;
     }
 
 }

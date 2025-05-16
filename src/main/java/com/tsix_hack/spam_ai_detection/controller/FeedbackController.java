@@ -20,13 +20,13 @@ public class FeedbackController {
     @PostMapping("/feedback")
     public ResponseEntity<?> handleUserFeedback(@RequestBody PeoplePreferenceDTO preference) {
         try {
-            // Save to database
+
             feedbackService.saveFeedbackToDB(preference);
 
-            // Send to FastAPI for adapter update/creation
+
             feedbackService.sendFeedbackToFastAPI(preference);
 
-            // Return immediate response to frontend
+
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "message", "Feedback saved and sent to model service"

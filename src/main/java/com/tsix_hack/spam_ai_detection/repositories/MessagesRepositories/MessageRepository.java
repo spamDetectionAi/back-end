@@ -14,7 +14,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("SELECT m FROM Message m WHERE :receiverId IN elements(m.receivers) order by m.sendDateTime desc ")
     List<Message> findByReceiverId(@Param("receiverId") UUID receiverId);
 
-    List<Message> findMessagesById(Long id) ;
+    @Query("SELECT m FROM Message m WHERE m.id = :id order by m.sendDateTime desc ")
+    List<Message> findMessagesByIdOrderBySendDateTimeDesc(Long id) ;
 
+    @Query("SELECT m FROM Message m WHERE m.sender = :account order by m.sendDateTime desc ")
     List<Message> findMessagesBySender(Account account) ;
 }

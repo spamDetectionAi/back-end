@@ -44,8 +44,9 @@ public class MessageServices {
             if (!localIds.isEmpty()) msg.setReceivers(localIds);
             if (!foreignIds.isEmpty()) msg.setForeignReceivers(foreignIds);
             if (!notFoundIds.isEmpty()) msg.setNotFoundReceivers(notFoundIds);
-            Long id = messageRepository.save(msg).getId();
-            map.put("id", id);
+            Message message = messageRepository.save(msg);
+            map.put("id", message.getId());
+            map.put("msg", message);
         }
 
 
@@ -98,6 +99,8 @@ public class MessageServices {
         Set<UUID> localids = (Set<UUID>) idAndReceivers.get("localIds");
         MessageToSend messageToSend = createMessageToSend(messageRequest, account, id, LocalDateTime.now());
         webSocketSessionListener.sendMessageToUser(localids, messageToSend);
+        Message msg = (Message) idAndReceivers.get("msg");
+        webSocketSessionListener.sendToItself(messageRequest.getSenderId(), createSentMessages(msg));
         return messageToSend;
     }
 
@@ -122,22 +125,27 @@ public class MessageServices {
         return messageToSends;
     }
 
-    public List<SentMessages> findSent(UUID id) {
+    public List<SentMessages> findSent(String token) {
+        UUID id = UUID.fromString(tokenService.uuidDecoded(token));
         List<SentMessages> sentMessages = new ArrayList<>();
         List<Message> messages = messageRepository.findMessagesBySender(new Account(id));
         for (Message message : messages) {
-            SentMessages sentMessage = MessageMapper.INSTANCE.toSentMessages(message);
-            Set<String> receivers = new HashSet<>();
-            if (!message.getReceivers().isEmpty()){
-                receivers.addAll(getOfLocalReceivers(message.getReceivers())) ;
-            }
-           if (!message.getForeignReceivers().isEmpty()){
-                receivers.addAll(getOfForeignReceivers(message.getForeignReceivers())) ;
-            }
-            sentMessage.setReceivers(receivers);
+            SentMessages sentMessage = createSentMessages(message);
             sentMessages.add(sentMessage);
         }
-        ;
+        return sentMessages;
+    }
+
+    private SentMessages createSentMessages(Message message) {
+        SentMessages sentMessages = MessageMapper.INSTANCE.toSentMessages(message);
+        Set<String> receivers = new HashSet<>();
+        if (!message.getReceivers().isEmpty()) {
+            receivers.addAll(getOfLocalReceivers(message.getReceivers()));
+        }
+        if (!message.getForeignReceivers().isEmpty()) {
+            receivers.addAll(getOfForeignReceivers(message.getForeignReceivers()));
+        }
+        sentMessages.setReceivers(receivers);
         return sentMessages;
     }
 
