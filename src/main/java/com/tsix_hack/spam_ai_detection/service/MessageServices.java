@@ -7,14 +7,13 @@ import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.Add
 import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.ForeignAddresses;
 import com.tsix_hack.spam_ai_detection.entities.messages.addressesManagement.NotFoundAddress;
 import com.tsix_hack.spam_ai_detection.entities.messages.mapper.MessageMapper;
-import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.Message;
-import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageRequest;
-import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
-import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.SentMessages;
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.*;
+import com.tsix_hack.spam_ai_detection.entities.peopleInfo.poepleInfoForm.PeopleInfo;
 import com.tsix_hack.spam_ai_detection.repositories.AccountRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.ForeignAddressesRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MessageRepository;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.NotFoundAddressesRepository;
+import com.tsix_hack.spam_ai_detection.repositories.PeopleInfoRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,6 +30,7 @@ import java.util.*;
 @AllArgsConstructor
 public class MessageServices {
     private WebSocketSessionListener webSocketSessionListener;
+    private PeopleInfoRepository peopleInfoRepository;
     private AccountRepository accountRepository;
     private MessageRepository messageRepository;
     private TokenService tokenService;
@@ -51,6 +52,7 @@ public class MessageServices {
             Message message = messageRepository.save(msg);
             map.put("id", message.getId());
             map.put("msg", message);
+
         }
 
 
@@ -96,31 +98,36 @@ public class MessageServices {
     }
 
     @Transactional
-    public MessageToSend sendMessage(MessageRequest messageRequest) {
+    public MessageReceived sendMessage(MessageRequest messageRequest) {
         Account account = accountRepository.findAccountById(messageRequest.getSenderId());
         Map<String, Object> idAndReceivers = saveAction(messageRequest);
         Long id = (Long) idAndReceivers.get("id");
         Set<UUID> localids = (Set<UUID>) idAndReceivers.get("localIds");
-        MessageToSend messageToSend = createMessageToSend(messageRequest, account, id, LocalDateTime.now());
+        MessageReceived messageToSend = createMessageToSend(messageRequest, account, id, LocalDateTime.now());
         webSocketSessionListener.sendMessageToUser(localids, messageToSend);
         Message msg = (Message) idAndReceivers.get("msg");
         webSocketSessionListener.sendToItself(messageRequest.getSenderId(), createSentMessages(msg));
         return messageToSend;
     }
 
-    private MessageToSend createMessageToSend(MessageRequest messageRequest, Account senderAccount, Long messageId, LocalDateTime sendDateTime) {
-        MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(messageRequest, AccountMapper.INSTANCE.toDTO(senderAccount));
-        messageToSend.setSendDateTime(sendDateTime);
-        messageToSend.setId(messageId);
-        return messageToSend;
+    private MessageReceived createMessageToSend(MessageRequest messageRequest, Account senderAccount, Long messageId, LocalDateTime sendDateTime) {
+        PeopleInfo peopleInfo = senderAccount.getPeopleInfo();
+        MessageReceived messageReceived = new MessageReceived(messageId
+                , senderAccount.getEmail()
+                , peopleInfo.getFirstName()
+                , peopleInfo.getLastName()
+                , messageRequest.getObject()
+                , messageRequest.getBody()
+                , Timestamp.valueOf(sendDateTime)) ;
+        return messageReceived ;
     }
 
 
-    public Page<MessageToSend> messagesByReceiver(String token , int pageIndex) {
+    public Page<MessageToSend> messagesByReceiver(String token, int pageIndex) {
         UUID id = UUID.fromString(tokenService.uuidDecoded(token));
-        Pageable page = PageRequest.of(pageIndex , 9) ;
-        Page<Message> messagesPage = messageRepository.findByReceiverId(id , page);
-        List<Message> messages = messagesPage.getContent() ;
+        Pageable page = PageRequest.of(pageIndex, 9);
+        Page<Message> messagesPage = messageRepository.findByReceiverId(id, page);
+        List<Message> messages = messagesPage.getContent();
         List<MessageToSend> messageToSends = new ArrayList<>();
         for (Message message : messages) {
             MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message);
@@ -128,7 +135,7 @@ public class MessageServices {
             messageToSend.setId(message.getId());
             messageToSends.add(messageToSend);
         }
-        Page<MessageToSend> pageToSend =new PageImpl<>(messageToSends , page , messagesPage.getTotalElements()) ;
+        Page<MessageToSend> pageToSend = new PageImpl<>(messageToSends, page, messagesPage.getTotalElements());
         return pageToSend;
     }
 
@@ -172,6 +179,12 @@ public class MessageServices {
             emails.add(foreignAddressesRepository.findById(id).get().getAddress());
         }
         return emails;
+    }
+
+    public Page<MessageReceived> receivedMessages(String token, int pageIndex) {
+        UUID id = UUID.fromString(tokenService.uuidDecoded(token));
+        Pageable page = PageRequest.of(pageIndex, 9);
+        return messageRepository.findReceivedMessages(id, page);
     }
 
 }

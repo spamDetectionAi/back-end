@@ -1,5 +1,6 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
+import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageReceived;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.SentMessages;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,7 @@ public class WebSocketSessionListener {
         }
     }
 
-    public void sendMessageToUser(Set<UUID> receivers , MessageToSend messageToSend) {
+    public void sendMessageToUser(Set<UUID> receivers , MessageReceived messageToSend) {
         for (UUID uuid : receivers) {
             String sessionId = sessions.get(uuid.toString());
             if (sessionId != null) {
