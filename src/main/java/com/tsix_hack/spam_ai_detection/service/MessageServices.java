@@ -17,6 +17,10 @@ import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.Message
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.NotFoundAddressesRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -112,9 +116,11 @@ public class MessageServices {
     }
 
 
-    public List<MessageToSend> messagesByReceiver(String token) {
+    public Page<MessageToSend> messagesByReceiver(String token , int pageIndex) {
         UUID id = UUID.fromString(tokenService.uuidDecoded(token));
-        List<Message> messages = messageRepository.findByReceiverId(id);
+        Pageable page = PageRequest.of(pageIndex , 9) ;
+        Page<Message> messagesPage = messageRepository.findByReceiverId(id , page);
+        List<Message> messages = messagesPage.getContent() ;
         List<MessageToSend> messageToSends = new ArrayList<>();
         for (Message message : messages) {
             MessageToSend messageToSend = MessageMapper.INSTANCE.toSend(message);
@@ -122,7 +128,8 @@ public class MessageServices {
             messageToSend.setId(message.getId());
             messageToSends.add(messageToSend);
         }
-        return messageToSends;
+        Page<MessageToSend> pageToSend =new PageImpl<>(messageToSends , page , messagesPage.getTotalElements()) ;
+        return pageToSend;
     }
 
     public List<SentMessages> findSent(String token) {

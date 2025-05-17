@@ -8,6 +8,7 @@ import com.tsix_hack.spam_ai_detection.service.AccountService;
 import com.tsix_hack.spam_ai_detection.service.MessageServices;
 import com.tsix_hack.spam_ai_detection.service.TokenService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -70,9 +71,9 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.findById(token)) ;
     }
 
-    @GetMapping("/messages")
-    public ResponseEntity<List<MessageToSend>> getAllMessages(@RequestHeader("Authorization") String token) {
-        return ResponseEntity.status(HttpStatus.OK).body(messageServices.messagesByReceiver(token)) ;
+    @GetMapping("/messages/{page}")
+    public ResponseEntity<Page<MessageToSend>> getAllMessages(@RequestHeader("Authorization") String token , @PathVariable int page) {
+        return ResponseEntity.status(HttpStatus.OK).body(messageServices.messagesByReceiver(token , page)) ;
     }
 
     @GetMapping("/mail/{email}")

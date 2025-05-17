@@ -18,11 +18,6 @@ public class MessageController {
     private MessageServices messageServices;
     private TokenService tokenService ;
 
-    @GetMapping("/messages")
-    public ResponseEntity<List<MessageToSend>> getAllMessages(@RequestHeader("Authorization") String token) {
-        return ResponseEntity.status(HttpStatus.OK).body(messageServices.messagesByReceiver(token)) ;
-    }
-
     @PostMapping("/send")
     public void messageSend(@RequestBody MessageRequest messageRequest , @RequestHeader("Authorization") String token) {
         messageRequest.setSenderId(UUID.fromString(tokenService.uuidDecoded(token)));
