@@ -1,0 +1,41 @@
+name : build and deploy on ec2
+
+on :
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy :
+    runs-on: ubuntu-latest
+    steps:
+      - name: check the code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'terum'
+          java-version: '21'
+
+      - name: build with maven
+        run: mvn clean package
+
+      - name: copy jar to EC2 instance
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_SSH_KEY}}
+          source: target/*.jar
+          target: /home/${{secrets.EC2_USER}}/
+
+      - name: restart app on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_SSH_KEY}}
+          script: |
+            pkill -f 'java -jar spam_ai_detection-0.0.1-SNAPSHOT.jar' || echo "No existing app running"
+            env $(cat home/${{secrets.EC2_USER}}/.env) java -jar home/${{secrets.EC2_USER}}/spam_ai_detection-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USER }}/app.log 2>&1 &
