@@ -27,8 +27,8 @@ jobs:
           host: ${{secrets.EC2_HOST}}
           username: ${{secrets.EC2_USER}}
           key: ${{secrets.EC2_SSH_KEY}}
-          source: target/*.jar
-          target: /home/${{secrets.EC2_USER}}/
+          source: target/spam_ai_detection-0.0.1-SNAPSHOT.jar
+          target: /home/${{secrets.EC2_USER}}/spam_ai_detection-0.0.1-SNAPSHOT.jar
 
       - name: restart app on EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -38,4 +38,4 @@ jobs:
           key: ${{secrets.EC2_SSH_KEY}}
           script: |
             pkill -f 'java -jar spam_ai_detection-0.0.1-SNAPSHOT.jar' || echo "No existing app running"
-            nohup java -jar home/${{secrets.EC2_USER}}/spam_ai_detection-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USER }}/app.log 2>&1 &
+            source ~/.bashrc && nohup java -jar /home/${{secrets.EC2_USER}}/spam_ai_detection-0.0.1-SNAPSHOT.jar > /home/${{secrets.EC2_USER}}/app.log 2>&1 &
