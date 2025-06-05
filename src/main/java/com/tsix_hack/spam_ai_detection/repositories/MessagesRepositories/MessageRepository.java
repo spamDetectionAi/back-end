@@ -39,11 +39,4 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     """, nativeQuery = true)
     Page<MessageReceived> findReceivedMessages(@Param("receiverId") UUID receiverId , Pageable pageable);
 
-    /*select m.id , a.email, p.first_name , p.last_name, m."object" , m.body , m.send_date_time from message_reception mr
-inner join message m on mr.message_id = m.id
-inner join account a on m.sender_id = a.id
-inner join people_info p
-on a.people_info_id = p.id
-where mr.receivers = 'c2cf3276-391b-472b-97a0-fd6ef1187945'*/
-
 }

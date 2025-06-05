@@ -38,4 +38,4 @@ jobs:
           key: ${{secrets.EC2_SSH_KEY}}
           script: |
             ps aux | grep 'spam_ai_detection-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}' | xargs -r kill -9
-            /home/ubuntu/target/start.sh
+            /home/${{secrets.EC2_USER}}/target/start.sh
