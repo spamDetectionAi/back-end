@@ -54,8 +54,6 @@ public class MessageServices {
             map.put("msg", message);
 
         }
-
-
         return map;
     }
 
