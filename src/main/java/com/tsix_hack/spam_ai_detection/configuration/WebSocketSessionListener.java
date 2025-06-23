@@ -1,5 +1,6 @@
 package com.tsix_hack.spam_ai_detection.configuration;
 
+import com.tsix_hack.spam_ai_detection.entities.MessagesMango.EntityMessages.MessagesMongoDb;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageReceived;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.MessageToSend;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.SentMessages;
@@ -11,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -68,6 +70,43 @@ public class WebSocketSessionListener {
             }
         }
     }
+
+    public void sendMessageToLocal(List<UUID> receivers , MessagesMongoDb messageToSend) {
+        for (UUID uuid : receivers) {
+            String sessionId = sessions.get(uuid.toString());
+            if (sessionId != null) {
+                try {
+                    messagingTemplate.convertAndSendToUser(uuid.toString(), "/queue/messages", messageToSend);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void sendMessageToSpam(List<UUID> receivers , MessagesMongoDb messageToSend) {
+        for (UUID uuid : receivers) {
+            String sessionId = sessions.get(uuid.toString());
+            if (sessionId != null) {
+                try {
+                    messagingTemplate.convertAndSendToUser(uuid.toString(), "/queue/spam", messageToSend);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void sendToLocalSender(UUID sender , MessagesMongoDb messagesMongoDb){
+        String sessionId = sessions.get(sender.toString()) ;
+        if (sessionId != null){
+            try {
+                messagingTemplate.convertAndSendToUser(sender.toString() , "/queue/sent" , messagesMongoDb);
+            }catch (Exception e){
+                e.getMessage() ;
+            }
+        }
+    }
     
     public void sendToItself(UUID receiver , SentMessages messages){
         String sessionId = sessions.get(receiver.toString()) ;
@@ -78,7 +117,5 @@ public class WebSocketSessionListener {
                 e.getMessage() ;
             }
         }
-        
-        
     }
 }

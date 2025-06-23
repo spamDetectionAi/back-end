@@ -23,12 +23,14 @@ public class MessagesMongoDb {
     private MessageSender messageSender;
     @NotNull
     private List<Receiver> receivers;
+    private boolean isSpam ;
 
-    public MessagesMongoDb( String object, String body, MessageSender messageSender, List<Receiver> receivers) {
+    public MessagesMongoDb( String object, String body, MessageSender messageSender, List<Receiver> receivers , boolean isSpam) {
         this.object = object;
         this.body = body;
         this.sendDateTime = Instant.now();
         this.messageSender = messageSender;
         this.receivers = receivers;
+        this.isSpam = isSpam ;
     }
 }

@@ -16,18 +16,26 @@ public class Detection {
         this.webClient = builder.baseUrl(baseUrl).build();
     }
 
-    public Mono<Boolean> callDetector(String text){
+    public boolean callDetector(String text){
         Map<String , String> body = Map.of(
-                "use_id" , "" ,
-                "text" , text
-        ) ;
+                "use_id", "1234", // valeur fictive mais non vide
+                "text", text
+        );
 
-        return webClient.post()
-                .uri("/predict")
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(DetectionResponse.class)
-                .map(DetectionResponse::isSpam);
+        try {
+            Boolean result = webClient.post()
+                    .uri("/predict")
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(DetectionResponse.class)
+                    .map(DetectionResponse::isSpam)
+                    .block();
+
+            return Boolean.TRUE.equals(result);
+        } catch (Exception e) {
+            System.err.println("Erreur appel détecteur : " + e.getMessage());
+            return false;
+        }
     }
 
     private record DetectionResponse(boolean isSpam) {}
