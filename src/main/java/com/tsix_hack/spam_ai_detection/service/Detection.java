@@ -10,7 +10,7 @@ import java.util.Map;
 @Service
 public class Detection {
     private final WebClient webClient ;
-    private final String baseUrl = System.getenv("DETECTION_URL") ;
+    private final String baseUrl = "https://oi83ttrapj.execute-api.eu-west-3.amazonaws.com/Prod" ;
 
     public Detection(WebClient.Builder builder){
         this.webClient = builder.baseUrl(baseUrl).build();
