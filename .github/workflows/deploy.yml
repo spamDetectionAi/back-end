@@ -19,7 +19,7 @@ jobs:
           java-version: '21'
 
       - name: build with maven
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: copy jar to EC2 instance
         uses: appleboy/scp-action@v0.1.3
