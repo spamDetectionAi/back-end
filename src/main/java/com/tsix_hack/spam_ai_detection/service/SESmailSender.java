@@ -35,7 +35,7 @@ public class SESmailSender {
                                     .charset("UTF-8")
                                     .build())
                             .body(Body.builder()
-                                    .text(Content.builder()
+                                    .html(Content.builder()
                                             .data(body)
                                             .charset("UTF-8")
                                             .build())
@@ -50,6 +50,11 @@ public class SESmailSender {
         } catch (SesException e) {
             System.err.println("Erreur lors de l'envoi de l'email: " + e.awsErrorDetails().errorMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        SESmailSender mailSender = new SESmailSender();
+        mailSender.sendEmail("achraf@maily.tech" , "tsiory733@gmail.com" , "Test email" , "This is a test email");
     }
 
 
