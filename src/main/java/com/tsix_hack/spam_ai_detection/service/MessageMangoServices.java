@@ -21,6 +21,7 @@ public class MessageMangoServices {
     private final AccountRepository accountRepository ;
     private final WebSocketSessionListener socketSessionListener ;
     private final MailParser mailParser ;
+    private final SESmailSender sesMailSender ;
 
 
     public Map<String, Object> senderOrganisation(String sender){
@@ -111,8 +112,12 @@ public class MessageMangoServices {
         }
         return saved ;
     }
+
     public void sendToForeign(MessageRequest message) {
-        System.out.println("sending to foreign" + message.sender());
+        List<String> receivers = message.receivers() ;
+        for (String email : receivers) {
+            sesMailSender.sendEmail(message.sender() , email , message.object(),  message.body());
+        }
     }
 
     public List<MessagesMongoDb> downloadFromServer(String email) throws Exception {
@@ -125,4 +130,6 @@ public class MessageMangoServices {
       }
       return messages ;
     }
+
+
 }
