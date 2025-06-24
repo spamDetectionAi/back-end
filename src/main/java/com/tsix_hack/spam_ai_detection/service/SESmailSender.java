@@ -9,10 +9,9 @@ import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 @Service
 public class SESmailSender {
-    @Value("${aws.access.key}")
-    private String access_key_id  ;
-    @Value("${aws.secret.key}")
-    private String access_key_secret ;
+
+    private final String access_key_id = System.getenv("AWS_KEY") ;
+    private final String access_key_secret = System.getenv("AWS_SECRET") ;
     private Region region = Region.EU_WEST_3 ;
     private SesClient sesClient ;
 
