@@ -117,7 +117,7 @@ public class MessageMangoServices {
 
     public List<MessagesMongoDb> downloadFromServer(String email) throws Exception {
         String name = email.substring(0 , email.indexOf("@")) ;
-      List<MessageRequest> request =  mailParser.readAllMessages("/var/mail/vmail/maily.tech/"+name+"new") ;
+      List<MessageRequest> request =  mailParser.readAllMessages("/var/mail/vmail/maily.tech/"+name+"/new") ;
       List<MessagesMongoDb> messages = new ArrayList<>() ;
       for(MessageRequest m : request){
          MessagesMongoDb msg =  sendMessage(m) ;
