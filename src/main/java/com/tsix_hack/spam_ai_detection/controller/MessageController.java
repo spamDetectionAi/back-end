@@ -3,6 +3,7 @@ import com.tsix_hack.spam_ai_detection.entities.MessagesMango.EntityMessages.Mes
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.*;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MessageRepository;
 import com.tsix_hack.spam_ai_detection.service.MessageMangoCrudServices;
+import com.tsix_hack.spam_ai_detection.service.MessageMangoServices;
 import com.tsix_hack.spam_ai_detection.service.MessageServices;
 import com.tsix_hack.spam_ai_detection.service.TokenService;
 import lombok.AllArgsConstructor;
@@ -24,11 +25,17 @@ public class MessageController {
     private TokenService tokenService ;
     private MessageRepository messageRepository ;
     private final MessageMangoCrudServices services  ;
+    private final MessageMangoServices mangoServices ;
 
     @PostMapping("/send")
     public void messageSend(@RequestBody MessageRequest messageRequest , @RequestHeader("Authorization") String token) {
         messageRequest.setSenderId(UUID.fromString(tokenService.uuidDecoded(token)));
         messageServices.sendMessage(messageRequest);
+    }
+
+    @PostMapping("/download/{email}")
+    public List<MessagesMongoDb>download(@PathVariable String email) throws Exception {
+        return mangoServices.downloadFromServer(email);
     }
 
     @GetMapping("/messages/{page}")
