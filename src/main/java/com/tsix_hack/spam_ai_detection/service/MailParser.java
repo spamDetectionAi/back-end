@@ -5,6 +5,7 @@ import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -18,7 +19,15 @@ public class MailParser {
         session = Session.getDefaultInstance(new Properties(), null);
     }
 
+    public void fixPermissions() throws IOException, InterruptedException {
+        Process p = new ProcessBuilder("sudo", "/usr/local/bin/fix_mail_permissions.sh").start();
+        int code = p.waitFor();
+        if (code != 0) throw new RuntimeException("Erreur script, code " + code);
+    }
+
+
     public List<MessageRequest> readAllMessages(String directoryPath) throws Exception {
+        fixPermissions() ;
         List<MessageRequest> messages = new ArrayList<>();
         Path dir = Paths.get(directoryPath);
         Path curDir = dir.getParent().resolve("cur");
