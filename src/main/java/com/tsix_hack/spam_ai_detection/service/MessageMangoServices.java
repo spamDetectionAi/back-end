@@ -20,6 +20,7 @@ public class MessageMangoServices {
     private final MongoMessageRepository mongoMessageRepository ;
     private final AccountRepository accountRepository ;
     private final WebSocketSessionListener socketSessionListener ;
+    private final MailParser mailParser ;
 
 
     public Map<String, Object> senderOrganisation(String sender){
@@ -73,7 +74,7 @@ public class MessageMangoServices {
     }
 
     public MessagesMongoDb sendMessage(MessageRequest messageRequest) {
-        //organize sender email  to define if it is from local or foreign
+
         Map<String , Object> organisedSender = senderOrganisation(messageRequest.sender()) ;
         String email = organisedSender.get("email").toString();
         EmailType senderType = (EmailType) organisedSender.get("senderType");
@@ -112,5 +113,16 @@ public class MessageMangoServices {
     }
     public void sendToForeign(MessageRequest message) {
         System.out.println("sending to foreign" + message.sender());
+    }
+
+    public List<MessagesMongoDb> downloadFromServer(String email) throws Exception {
+        String name = email.substring(0 , email.indexOf("@")) ;
+      List<MessageRequest> request =  mailParser.readAllMessages("/var/mail/vmail/maily.tech/"+name+"/new") ;
+      List<MessagesMongoDb> messages = new ArrayList<>() ;
+      for(MessageRequest m : request){
+         MessagesMongoDb msg =  sendMessage(m) ;
+         messages.add(msg) ;
+      }
+      return messages ;
     }
 }
