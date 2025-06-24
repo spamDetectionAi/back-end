@@ -90,8 +90,12 @@ public class MessageMangoServices {
 
         MessagesMongoDb msgToSave = new MessagesMongoDb(messageRequest.object() , messageRequest.body() , messageSender ,receivers , isSpam );
         List<IdEmail> local = (organisedReceivers.get("local") != null) ? (List<IdEmail>) organisedReceivers.get("local") : null ;
-        List<String> foreign = (organisedReceivers.get("foreign") != null) ? (List<String>) organisedReceivers.get("foreign") : null ;
+        List<String> foreign = msgToSave.getReceivers().stream()
+                .filter(receiver -> receiver.getType() == EmailType.FOREIGN)
+                .map(Receiver::getEmail)
+                .toList();
         List<String> notFound = (organisedReceivers.get("notFound") != null) ? (List<String>) organisedReceivers.get("notFound") : null;
+        
         MessagesMongoDb saved = mongoMessageRepository.save(msgToSave);
         if(local != null){
             List<UUID> uuids = local.stream()
@@ -103,8 +107,16 @@ public class MessageMangoServices {
             }else {
                 socketSessionListener.sendMessageToSpam(uuids , saved);
             }
-        } else if (foreign != null) {
-            sendToForeign(messageRequest);
+        }
+        if (!foreign.isEmpty()) {
+            for (String email1 : foreign) {
+                sesMailSender.sendEmail(msgToSave.getMessageSender().getEmail() ,
+                        email1 ,
+                        msgToSave.getObject() ,
+                        msgToSave.getBody());
+            }
+            System.out.println("foreign emails sent" + foreign.size());
+
         }
 
         if (id != null) {
@@ -113,12 +125,7 @@ public class MessageMangoServices {
         return saved ;
     }
 
-    public void sendToForeign(MessageRequest message) {
-        List<String> receivers = message.receivers() ;
-        for (String email : receivers) {
-            sesMailSender.sendEmail(message.sender() , email , message.object(),  message.body());
-        }
-    }
+
 
     public List<MessagesMongoDb> downloadFromServer(String email) throws Exception {
         String name = email.substring(0 , email.indexOf("@")) ;

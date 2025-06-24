@@ -4,6 +4,7 @@ import com.tsix_hack.spam_ai_detection.entities.MessagesMango.EntityMessages.Mes
 import com.tsix_hack.spam_ai_detection.entities.MessagesMango.SenderManager.MessageRequest;
 import com.tsix_hack.spam_ai_detection.service.Detection;
 import com.tsix_hack.spam_ai_detection.service.MessageMangoServices;
+import com.tsix_hack.spam_ai_detection.service.SESmailSender;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ public class Ping {
 
     private final Detection detection;
     private final MessageMangoServices services ;
+    private final SESmailSender mailSender ;
 
     @GetMapping("/ping")
     public String ping() {
@@ -25,4 +27,6 @@ public class Ping {
     public MessagesMongoDb save(@RequestBody MessageRequest messageRequest){
         return services.sendMessage(messageRequest);
     }
+
+
 }
