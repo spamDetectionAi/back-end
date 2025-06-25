@@ -144,20 +144,4 @@ public class MailParser {
         return "";
     }
 
-
-    public static void main(String[] args) {
-        try {
-            MailParser mailParser = new MailParser();
-            List<MessageRequest> messages  = mailParser.readAllMessages("/home/tsiory/Documents/emails/tsiory/new");
-            for (MessageRequest msg : messages) {
-                System.out.println("\n-------------------------");
-                System.out.println("Sender: " + msg.sender());
-                System.out.println("Subject: " + msg.object());
-                System.out.println("Body:\n" + msg.body());
-                System.out.println("Receivers: " + msg.receivers());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

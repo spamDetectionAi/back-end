@@ -2,6 +2,7 @@ package com.tsix_hack.spam_ai_detection.controller;
 import com.tsix_hack.spam_ai_detection.entities.MessagesMango.EntityMessages.MessagesMongoDb;
 import com.tsix_hack.spam_ai_detection.entities.messages.messageForm.*;
 import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MessageRepository;
+import com.tsix_hack.spam_ai_detection.repositories.MessagesRepositories.MongoMessageRepository;
 import com.tsix_hack.spam_ai_detection.service.MessageMangoCrudServices;
 import com.tsix_hack.spam_ai_detection.service.MessageMangoServices;
 import com.tsix_hack.spam_ai_detection.service.MessageServices;
@@ -26,6 +27,7 @@ public class MessageController {
     private MessageRepository messageRepository ;
     private final MessageMangoCrudServices services  ;
     private final MessageMangoServices mangoServices ;
+    private final MongoMessageRepository mongoMessageRepository ;
 
     @PostMapping("/send")
     public void messageSend(@RequestBody MessageRequest messageRequest , @RequestHeader("Authorization") String token) {
@@ -63,6 +65,9 @@ public class MessageController {
         return services.findById(id) ;
     }
 
-
+    @GetMapping("/filter/{email}")
+    public List<MessagesMongoDb> filter(@PathVariable String email ,@RequestParam String keyword){
+        return mongoMessageRepository.searchMessagesForUser(email , keyword) ;
+    }
 
 }
