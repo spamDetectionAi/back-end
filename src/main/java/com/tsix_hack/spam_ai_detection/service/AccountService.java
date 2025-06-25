@@ -87,8 +87,15 @@ public class AccountService {
                 .body(token);
     }
 
+    private void createUser(String username) throws IOException, InterruptedException {
+        Process p = new ProcessBuilder("sudo", "/home/ubuntu/scripts/creation.sh", username).start();
+        int code = p.waitFor();
+        if (code != 0) throw new RuntimeException("code exec error " + code);
+    }
+
+
     @Transactional
-    public ResponseEntity<String> save (Account account , UUID uuid) {
+    public ResponseEntity<String> save (Account account , UUID uuid) throws IOException, InterruptedException {
         if (emailCheck(account.getEmail()))
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
@@ -98,6 +105,8 @@ public class AccountService {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("your verification code "+uuid.toString()+" is invalid") ;
+
+        createUser(account.getEmail().split("@")[0]);
 
         return savingAction(account);
     }

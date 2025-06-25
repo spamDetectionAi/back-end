@@ -68,7 +68,7 @@ public class MailParser {
         try (InputStream is = Files.newInputStream(filePath)) {
             MimeMessage mimeMessage = new MimeMessage(session, is);
 
-            // Récupération propre de l'expéditeur
+
             String senderRaw = mimeMessage.getFrom() != null ? mimeMessage.getFrom()[0].toString() : null;
             String sender = extractEmail(senderRaw);
 

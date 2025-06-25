@@ -62,7 +62,7 @@ public class AccountController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save (@RequestBody Account account ,@RequestHeader("uuid") UUID uuid) {
+    public ResponseEntity<String> save (@RequestBody Account account ,@RequestHeader("uuid") UUID uuid) throws IOException, InterruptedException {
         return accountService.save(account , uuid) ;
     }
 

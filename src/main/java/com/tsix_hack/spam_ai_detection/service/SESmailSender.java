@@ -52,10 +52,6 @@ public class SESmailSender {
         }
     }
 
-    public static void main(String[] args) {
-        SESmailSender mailSender = new SESmailSender();
-        mailSender.sendEmail("achraf@maily.tech" , "tsiory733@gmail.com" , "Test email" , "This is a test email");
-    }
 
 
 }
